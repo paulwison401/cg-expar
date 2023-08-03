@@ -2,9 +2,15 @@ from flask import Flask, request, jsonify
 import pdfplumber
 import spacy
 import requests
+from spacy.util import is_package
 from io import BytesIO
 
 app = Flask(__name__)
+
+# Check if the language model is downloaded
+if not is_package('en_core_web_sm'):
+    spacy.cli.download('en_core_web_sm')
+
 nlp = spacy.load("en_core_web_sm")
 
 def extract_information(text):
@@ -48,13 +54,12 @@ def extract_information(text):
 def extract_and_summarize():
     pdf_url = request.json.get("pdf_url")
     if not pdf_url:
-        return jsonify({"error": "No URL provided"}), 400
+        return jsonify({"error": "No url provided"}), 400
 
     response = requests.get(pdf_url)
-    pdf_file = BytesIO(response.content)
 
     text = ""
-    with pdfplumber.open(pdf_file) as pdf:
+    with pdfplumber.open(BytesIO(response.content)) as pdf:
         for page in pdf.pages:
             text += page.extract_text()
 
@@ -63,4 +68,4 @@ def extract_and_summarize():
     return jsonify(info)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False,host='0.0.0.0')
