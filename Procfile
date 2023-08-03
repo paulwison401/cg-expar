@@ -1,1 +1,1 @@
-gunicorn app:cg_expar.py
+gunicorn cg_expar:cg_expar.py
