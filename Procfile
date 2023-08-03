@@ -1,1 +1,1 @@
-web: gunicorn app:cg_expar.py
+gunicorn app:cg_expar.py
